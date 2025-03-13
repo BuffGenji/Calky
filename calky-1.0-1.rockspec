@@ -2,8 +2,8 @@ package = "calky"
 version = "1.0-1"       
 
 source = {
-  url = "https://github.com/BuffGenji/Calky.git",
-  branch = "main"
+  url = "https://github.com/BuffGenji/Calky/src.zip",
+  extract = "true"
 }
 
 description = {
@@ -23,6 +23,6 @@ dependencies = {
 build = {
   type = "builtin", 
   modules = {
-    ["calky"] = "src/calky.lua"
+    ["calky"] = "package/calky.lua"
   }
 }
