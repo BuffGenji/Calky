@@ -1,8 +1,10 @@
+rockspec_format = "3.0"
 package = "calky"  
-version = "1.0-1"       
+version = "1.0-1"   
 
 source = {
-  url = "https://github.com/BuffGenji/Calky/src.zip"
+  url = "https://github.com/BuffGenji/Calky/archive/refs/heads/main.zip",
+  dir = "calky-main"
 }
 
 description = {
@@ -22,6 +24,6 @@ dependencies = {
 build = {
   type = "builtin", 
   modules = {
-    ["calky"] = "package/calky.lua"
+    ["calky"] = "src/calky.lua"
   }
 }
