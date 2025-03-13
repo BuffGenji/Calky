@@ -2,8 +2,7 @@ package = "calky"
 version = "1.0-1"       
 
 source = {
-  url = "https://github.com/BuffGenji/Calky/src.zip", 
-  extract = true
+  url = "https://github.com/BuffGenji/Calky/src.zip"
 }
 
 description = {
