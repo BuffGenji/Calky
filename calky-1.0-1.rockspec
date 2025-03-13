@@ -23,6 +23,6 @@ dependencies = {
 build = {
   type = "builtin", 
   modules = {
-    ["calky"] = "general.lua"
+    ["calky"] = "src/calky.lua"
   }
 }
