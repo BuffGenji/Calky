@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "calky"  
-version = "1.0-1"   
+version = "1.0-2"   
 
 source = {
   url = "https://github.com/BuffGenji/Calky/archive/refs/heads/main.zip",
