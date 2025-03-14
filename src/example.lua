@@ -21,20 +21,27 @@ local create = require("calky")
     And to find the number of points we just need to convert our existing surface mm^2 into inches^2 and multiply by the resolution
 ]] ----------------------------------------------------------------------------------------------------------------------------------------------------
 --Converting to inches squared
-local width_in_inches = create.value(210, MILLIMETER).getUnit(INCH)
-local height_in_inches = create.value(297, MILLIMETER).getUnit(INCH)
-local surface_area = create.value(width_in_inches * height_in_inches, INCH)
+local width_in_inches = create.value(210, MILLIMETER).convertTo(INCH).show("Width")
+local height_in_inches = create.value(297, MILLIMETER).convertTo(INCH).show("Height")
+local surface_area = create.value(width_in_inches * height_in_inches, INCH).show("Surface area")
 
 --Multiplying by current resolution
-local resoltuion_units = POINT.name .. OVER .. INCH.name .. OPERATOR_SQUARE_ROOT
+local resoltuion_units = POINT.name .. OVER .. INCH.name .. OPERATOR_SQUARED
+-- print(resoltuion_units)
+local meters_per_second = create.simpleUnit("m").over().simpleUnit("s").show()
+
+local res_units = {
+    name= POINT .. OVER .. INCH .. OPERATOR_SQUARED
+}
+print(res_units.name)
 local resolution = create.value(600, resoltuion_units)
 local number_of_bits = create.value(resolution * surface_area, POINT)
 
 -- Resolution/Result
 number_of_bits.setDescription(
-    "The number of bits is the number of points, there are " .. tostring(number_of_bits) .. " and so" ..
-    " we will need " .. number_of_bits["number"] / KBIT.value .. " " .. KB.name .. " to store it"
-)
+    "The number of bits is the number of points, there are " .. number_of_bits .. " and so" ..
+    " we will need " .. number_of_bits["quantity"] / KBIT.value .. " " .. KB.name .. " to store it"
+).showDescription()
 -- add ".showDescription()" to fill values
 
 --[[ --------------------------------------------------------------------------------------------------------------------------------------------------
@@ -71,10 +78,10 @@ local transfer_speed_of_driver = create.value(total_disquette_storage / total_ti
 
 -- Since the values are in the same units we can check to see which one is bigger ( larger ratio ) and then find the best "mode of transport"
 local answer = ""
-if (transfer_speed_of_driver["number"] > transfer_speed_of_telephone_line["number"]) then
+if (transfer_speed_of_driver["quantity"] > transfer_speed_of_telephone_line["quantity"]) then
     answer = "Driver wins!"
 else
-    if (transfer_speed_of_driver["number"] == transfer_speed_of_telephone_line["number"]) then
+    if (transfer_speed_of_driver["quantity"] == transfer_speed_of_telephone_line["quantity"]) then
         answer = "Wow! A tie!"
     else
         answer = "Telephone line wins!"
