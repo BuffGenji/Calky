@@ -53,7 +53,6 @@ local function do_arithmetic(table, other_table, type)
     return do_operation(table, other_table, type)
 end
 
-
 MODULES = {
     math, string -- user-defined modules can go here too and will be loaded in any case loaded
 }
@@ -76,6 +75,22 @@ function create.value(quantity, units)
         __sub = function(self, othervalue) return do_arithmetic(self, othervalue, operation_constants.SUBTRACT) end,
         __mul = function(self, othervalue) return do_arithmetic(self, othervalue, operation_constants.MULTIPLY) end,
         __div = function(self, othervalue) return do_arithmetic(self, othervalue, operation_constants.DIVIDE) end,
+        __index = function(_, key)
+            local f = math[key] -- Check if the key exists in the math module
+            if type(f) == "function" then
+                return function(...)
+                    local num_args = select("#", ...) 
+                    if num_args == 0 then
+                        element["quantity"] = f(element["quantity"], 2)
+                    else
+                        element["quantity"] = f(element["quantity"], ...)
+                    end
+                    return element -- Return the table for chaining
+                end
+            else
+                error("Attempt to call a non-existent math function: " .. tostring(key))
+            end
+        end
     })
     local history_of_descripitons = {}
     local description = ""
@@ -112,7 +127,7 @@ function create.value(quantity, units)
     end
 
     function element.show(...)
-        local args = { ... }             
+        local args = { ... }
         local number_of_elements = #args
 
         if number_of_elements == 0 then
@@ -125,7 +140,7 @@ function create.value(quantity, units)
             warn("Multiple arguments will just be concatenated")
             local result = ""
             for i = 1, number_of_elements do
-                local arg = tostring(args[i]) 
+                local arg = tostring(args[i])
                 if i == 1 then
                     result = arg
                 else
@@ -155,20 +170,6 @@ function create.value(quantity, units)
         end
     end
 
-    for _, mod in ipairs(MODULES) do
-        for k, v in pairs(mod) do
-            if type(v) == "function" then
-                element[k] = function(self)
-                    local current = self or element -- to keep "." notation
-                    if current["quantity"] == nil then
-                        error("The 'quantity' field is not initialized in the table.")
-                    end
-                    current["quantity"] = v(current["quantity"])
-                    return current
-                end
-            end
-        end
-    end
     return element
 end
 
@@ -194,8 +195,8 @@ function create.simpleUnit(unit_name)
     end
 
     function unit.parenthesis(...)
-        local args = { ... }             
-        local number_of_elements = #args 
+        local args = { ... }
+        local number_of_elements = #args
 
         if number_of_elements == 0 then
             return create.simpleUnit("(" .. unit.name .. ")")

@@ -4,7 +4,7 @@ version = "1.0-2"
 
 source = {
   url = "https://github.com/BuffGenji/Calky/archive/refs/heads/main.zip",
-  dir = "calky-main"
+  dir = "Calky-main"
 }
 
 description = {
@@ -25,5 +25,6 @@ build = {
   type = "builtin", 
   modules = {
     ["calky"] = "src/calky.lua"
+    ["calky.constants"] = src/constants.lua
   }
 }
