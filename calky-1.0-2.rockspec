@@ -24,7 +24,7 @@ dependencies = {
 build = {
   type = "builtin", 
   modules = {
-    ["calky"] = "src/calky.lua"
-    ["calky.constants"] = src/constants.lua
+    ["calky"] = "src/calky.lua",
+    ["calky.constants"] = "src/constants.lua"
   }
 }

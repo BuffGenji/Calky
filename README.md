@@ -1,6 +1,7 @@
 # Calky
 Small lua  library to make calculations more readable and simple during class
 
+
 # Example
 This file is in the **src** directory if you wan to copy it 
 
