@@ -33,7 +33,7 @@ YEAR = { name = "Year(s)", value = 365 * 30 * 7 * 24 * 60 ^ 2 }   -- Approximati
 OPERATOR_SQUARED = { name = "^2" }
 OPERATOR_CUBED = { name = "^3" }
 OPERATOR_SQUARE_ROOT = { name = "^(1/2)" }
-PERCENT = { name = "%" }
+PERCENT = { name = "%", value= 100 }
 
 -- NATURAL LANGUAGE
 OVER = { name = " / " }
@@ -52,7 +52,9 @@ local constants_behaviour_table = {
         local string_a = (type(a) == "table" and a.name) or tostring(a or "")
         local string_b = (type(b) == "table" and b.name) or tostring(b or "")
         return string_a .. " "..string_b
-    end
+    end,
+
+
 }
 
 for _, value in pairs(_G) do

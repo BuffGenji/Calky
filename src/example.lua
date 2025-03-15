@@ -1,4 +1,4 @@
-local create = require("calky")
+local create = require("calky") -- still given to local variable in the event someone wants to use old notation
 
 -- GéNéRALITéS TDs -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -21,26 +21,20 @@ local create = require("calky")
     And to find the number of points we just need to convert our existing surface mm^2 into inches^2 and multiply by the resolution
 ]] ----------------------------------------------------------------------------------------------------------------------------------------------------
 --Converting to inches squared
-local width_in_inches = create.value(210, MILLIMETER).convertTo(INCH).show("Width")
-local height_in_inches = create.value(297, MILLIMETER).convertTo(INCH).show("Height")
-local surface_area = create.value(width_in_inches * height_in_inches, INCH).show("Surface area")
+local width_in_inches = value(210, MILLIMETER).convertTo(INCH).show("Width")
+local height_in_inches = value(297, MILLIMETER).convertTo(INCH).show("Height")
+local surface_area = value(width_in_inches * height_in_inches, INCH).show("Surface area")
 
 --Multiplying by current resolution
-local resoltuion_units = POINT.name .. OVER .. INCH.name .. OPERATOR_SQUARED
--- print(resoltuion_units)
-local meters_per_second = create.simpleUnit("m").over().simpleUnit("s").show()
 
-local res_units = {
-    name= POINT .. OVER .. INCH .. OPERATOR_SQUARED
-}
-print(res_units.name)
-local resolution = create.value(600, resoltuion_units)
-local number_of_bits = create.value(resolution * surface_area, POINT)
+local res_units =  unit(POINT).over().unit(INCH .. OPERATOR_SQUARED).show("Resolution units")
+local resolution = value(600, res_units)
+local number_of_bits = value(resolution * surface_area, POINT)
 
 -- Resolution/Result
 number_of_bits.setDescription(
     "The number of bits is the number of points, there are " .. number_of_bits .. " and so" ..
-    " we will need " .. number_of_bits["quantity"] / KBIT.value .. " " .. KB.name .. " to store it"
+    " we will need " .. number_of_bits / KBIT.value .. " " .. KB .. " to store it"
 ).showDescription()
 -- add ".showDescription()" to fill values
 
@@ -67,21 +61,21 @@ local KILOBYTES_PER_SECOND = {
 }
 
 -- TELEPHONE LINE
-local transfer_speed_of_telephone_line = create.value(56000, KBIT)
+local transfer_speed_of_telephone_line = value(56000, KILOBYTES_PER_SECOND)
 
 -- DRIVER
 local number_of_disquettes = 10
 local quantity_per_disquette = 1.4 * MB.value
-local total_disquette_storage = create.value(quantity_per_disquette * number_of_disquettes, MB).getUnit(KBIT)
-local total_time_for_driver = create.value(20 / 30, HOUR).getUnit(SECOND)
-local transfer_speed_of_driver = create.value(total_disquette_storage / total_time_for_driver, KILOBYTES_PER_SECOND)
+local total_disquette_storage = value(quantity_per_disquette * number_of_disquettes, MB).convertTo(KBIT)
+local total_time_for_driver = value(20 / 30, HOUR).convertTo(SECOND)
+local transfer_speed_of_driver = value(total_disquette_storage / total_time_for_driver, KILOBYTES_PER_SECOND)
 
 -- Since the values are in the same units we can check to see which one is bigger ( larger ratio ) and then find the best "mode of transport"
 local answer = ""
-if (transfer_speed_of_driver["quantity"] > transfer_speed_of_telephone_line["quantity"]) then
+if (transfer_speed_of_driver > transfer_speed_of_telephone_line) then
     answer = "Driver wins!"
 else
-    if (transfer_speed_of_driver["quantity"] == transfer_speed_of_telephone_line["quantity"]) then
+    if (transfer_speed_of_driver == transfer_speed_of_telephone_line) then
         answer = "Wow! A tie!"
     else
         answer = "Telephone line wins!"
@@ -105,23 +99,17 @@ end
               once we get it - is 4000 Hz. The rule of thumb being that it is to be around half.
 ]]
 
--- Once again we need special units not found in the table, so we will create our own
-local SAMPLES_PER_SECOND = {
-    name = "éch" .. OVER .. SECOND.name -- éch / s
-}
-local BITS_PER_SAMPLE = {
-    name = BIT.name .. OVER .. "éch" -- bit / éch
-}
+-- new notation
+local SAMPLES_PER_SECOND = unit("éch").over().unit(SECOND).show("Unit for samples per second")
+local BITS_PER_SAMPLE = unit(BIT).over().unit("éch").show("Unit for bits / sample")
 -- the mutiplication of them will give us our desired unit : bit/s
-local BIT_PER_SECOND = {
-    name = BIT.name .. OVER .. SECOND.name -- bit / s
-}
+local BIT_PER_SECOND = unit(BIT).over().unit(SECOND).show("Unit for bits / second")
 
 -- We will represent the data rate in bit/s
-local samples_per_second = create.value(8000, SAMPLES_PER_SECOND)
-local bits_per_sample = create.value(8, BITS_PER_SAMPLE)
-local theoretical_transfer_speed = create.value(samples_per_second * bits_per_sample, BIT_PER_SECOND)
-local practical_transfer_speed = create.value(theoretical_transfer_speed * 0.9, BIT_PER_SECOND)
+local samples_per_second = value(8000, SAMPLES_PER_SECOND)
+local bits_per_sample = value(8, BITS_PER_SAMPLE)
+local theoretical_transfer_speed = value(samples_per_second * bits_per_sample, BIT_PER_SECOND)
+local practical_transfer_speed = value(theoretical_transfer_speed * 0.9, BIT_PER_SECOND)
 
 
 -- GéNéRALITéS : SECOND SHEET -------------------------------------------------------------------------------------------------------------------------
@@ -151,15 +139,15 @@ local practical_transfer_speed = create.value(theoretical_transfer_speed * 0.9, 
     Problem 1
         - How many messages would you have to send to get a file of 4 Mbits from one station to another?
 ]] -----------------------------------------------------------------------------------------------------------------------------------------------------
-local network_data_rate = create.value(10 * MBIT.value, MBIT).getUnit(BIT)
-local quantity_on_network = create.value(1000, BIT)
-local network_data_integrity = create.value(16, BIT)
+local network_data_rate = value(10 * MBIT.value, MBIT).convertTo(BIT)
+local quantity_on_network = value(1000, BIT)
+local network_data_integrity = value(16, BIT)
 
 -- We calculate the amount of bits the file is and we divide by the quantity we can send minus the bits reserved for the data integrity
-local file_bits = create.value(4 * MBIT.value, MBIT).getUnit(BIT)
-local data_per_message = create.value(quantity_on_network - network_data_integrity, BIT)
-local number_of_messages = create.value(file_bits / data_per_message, { name = "Messages" })
-local transmission_time = create.value(data_per_message / network_data_rate, BIT_PER_SECOND)
+local file_bits = value(4 * MBIT.value, MBIT).convertTo(BIT)
+local data_per_message = value(quantity_on_network - network_data_integrity, BIT)
+local number_of_messages = value(file_bits / data_per_message, unit("Messages"))
+local transmission_time = value(data_per_message / network_data_rate, BIT_PER_SECOND)
 
 --[[---------------------------------------------------------------------------------------------------------------------------------------------------
     ADDING CONDITIONS
@@ -173,18 +161,17 @@ local transmission_time = create.value(data_per_message / network_data_rate, BIT
 ]] -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- We need to create our Km/s unit
-local KILOMETER_PER_SECOND = {
-    name = KILOMETER.name .. OVER .. SECOND.name
-}
+local KILOMETER_PER_SECOND = unit(KILOMETER).over().unit(SECOND).show("Units for km/s")
+
 local distance_between_stations = 1 -- Km
 local propagation_speed = 200000 -- Km/s
 
 -- Calculating propagation delay for the sending and recieving of the messages
-local ring_length = create.value(distance_between_stations, KILOMETER)
-local speed_of_data_in_network = create.value(propagation_speed, KILOMETER_PER_SECOND)
-local there_and_back_delay = create.value(2 * (ring_length / speed_of_data_in_network), SECOND)
--- there_and_back_delay.show("Minimum duration needed before sending next message")
-local total_time_to_send_no_propagation_delay = create.value(file_bits / network_data_rate, SECOND)
--- total_time_to_send_no_propagation_delay.show("Time to send full file without propagation delay")
-local efficiency_of_system = create.value(data_per_message/quantity_on_network, PERCENT)
--- efficiency_of_system.show("Efficiency of the network")
+local ring_length = value(distance_between_stations, KILOMETER)
+local speed_of_data_in_network = value(propagation_speed, KILOMETER_PER_SECOND)
+local there_and_back_delay = value(2 * (ring_length / speed_of_data_in_network), SECOND)
+there_and_back_delay.show("Minimum duration needed before sending next message")
+local total_time_to_send_no_propagation_delay = value(file_bits / network_data_rate, SECOND)
+total_time_to_send_no_propagation_delay.show("Total time on the network needed - assuming no delays")
+local efficiency_of_system = value(data_per_message/quantity_on_network, PERCENT)
+efficiency_of_system.show("Percent of actual data transmitted")

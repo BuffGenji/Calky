@@ -19,16 +19,16 @@ local operation_constants = {
 }
 local function do_operation(current_table, other_table_or_number, operation)
     if operation == operation_constants.ADD then
-        return current_table["quantity"] + other_table_or_number["quantity"]
+        return current_table + other_table_or_number
     end
     if operation == operation_constants.SUBTRACT then
-        return current_table["quantity"] - other_table_or_number["quantity"]
+        return current_table - other_table_or_number
     end
     if operation == operation_constants.MULTIPLY then
-        return current_table["quantity"] * other_table_or_number["quantity"]
+        return current_table * other_table_or_number
     end
     if operation == operation_constants.DIVIDE then
-        return current_table["quantity"] / other_table_or_number["quantity"]
+        return current_table / other_table_or_number
     end
 end
 
@@ -49,8 +49,9 @@ local function do_arithmetic(table, other_table, type)
     type = getConstant(type)
     if isNumber(other_table) then
         return do_operation(table["quantity"], other_table, type)
+    else
+        return do_operation(table, other_table["quantity"], type)
     end
-    return do_operation(table, other_table, type)
 end
 
 MODULES = {
@@ -79,7 +80,7 @@ function create.value(quantity, units)
             local f = math[key] -- Check if the key exists in the math module
             if type(f) == "function" then
                 return function(...)
-                    local num_args = select("#", ...) 
+                    local num_args = select("#", ...)
                     if num_args == 0 then
                         element["quantity"] = f(element["quantity"], 2)
                     else
@@ -90,7 +91,15 @@ function create.value(quantity, units)
             else
                 error("Attempt to call a non-existent math function: " .. tostring(key))
             end
-        end
+        end,
+        --[[ 
+            Might add these to units too in future to tyo to make a nicer type system that can withstand 
+            and work with new types well
+        ]]
+         __lt = function(a, b)
+            assert(a["units"] == b["units"], "Cannot compare values with different units") return a["quantity"] < b["quantity"] end,
+        __eq = function(a, b)
+            assert(a["units"] == b["units"], "Cannot compare values with different units") return a["quantity"] == b["quantity"] end
     })
     local history_of_descripitons = {}
     local description = ""
@@ -134,6 +143,9 @@ function create.value(quantity, units)
             print(element)
             return element
         elseif number_of_elements == 1 then
+            if element.getUnits() == PERCENT then -- quick fix
+                element["quantity"] = element["quantity"] * 100
+            end
             print(tostring(tostring(args[1]) .. " -> " .. element.getQuantity() .. element.getUnits()))
             return element
         else
@@ -186,8 +198,8 @@ function create.simpleUnit(unit_name)
         end
     })
 
-    function unit.over(given_unit)
-        return create.simpleUnit(unit.name .. "/" .. given_unit.name)
+    function unit.over()
+        return create.simpleUnit(unit.name .. "/")
     end
 
     function unit.by()
@@ -219,10 +231,34 @@ function create.simpleUnit(unit_name)
     function unit.simpleUnit(unit_name)
         return create.simpleUnit(unit.name .. unit_name)
     end
+    function unit.unit(unit_name)
+        return create.simpleUnit(unit.name .. unit_name)
+    end
 
-    function unit.show()
-        print(unit.name)
-        return unit
+    function unit.show(...)
+        local args = { ... }
+        local number_of_elements = #args
+
+        if number_of_elements == 0 then
+            print(unit)
+            return unit
+        elseif number_of_elements == 1 then
+            print(tostring(tostring(args[1]) .. " -> " .. unit.name))
+            return unit
+        else
+            warn("Multiple arguments will just be concatenated")
+            local result = ""
+            for i = 1, number_of_elements do
+                local arg = tostring(args[i])
+                if i == 1 then
+                    result = arg
+                else
+                    result = result .. " " .. arg
+                end
+            end
+            print(result)
+            return unit
+        end
     end
 
     return unit
